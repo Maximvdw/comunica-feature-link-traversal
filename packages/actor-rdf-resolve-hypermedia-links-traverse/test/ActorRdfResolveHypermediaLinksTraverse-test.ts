@@ -67,5 +67,35 @@ describe('ActorRdfResolveHypermediaLinksTraverse', () => {
           { url: 'http://example.org' },
         ]});
     });
+
+    it('should run and convert non-https links to https in the browser', () => {
+      global.window = { location: new URL("https://mywebapp.com") };
+      const result = actor.run({ context: new ActionContext(),
+        metadata: { traverse: [
+          { url: 'http://example.org?abc' },
+          { url: 'http://example.org' },
+        ]}});
+      global.window = { location: new URL("http://localhost") };
+      return expect(result)
+        .resolves.toMatchObject({ links: [
+          { url: 'https://example.org?abc' },
+          { url: 'https://example.org' },
+        ]});
+    });
+
+    it('should run and keep non-https links when running from non-https', () => {
+      global.window = { location: new URL("http://mywebapp.com") };
+      const result = actor.run({ context: new ActionContext(),
+        metadata: { traverse: [
+          { url: 'http://example.org?abc' },
+          { url: 'http://example.org' },
+        ]}});
+      global.window = { location: new URL("http://localhost") };
+      return expect(result)
+        .resolves.toMatchObject({ links: [
+          { url: 'http://example.org?abc' },
+          { url: 'http://example.org' },
+        ]});
+    });
   });
 });

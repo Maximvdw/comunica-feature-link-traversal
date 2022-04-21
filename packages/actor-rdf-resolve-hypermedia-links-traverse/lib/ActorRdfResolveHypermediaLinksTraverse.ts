@@ -35,6 +35,13 @@ export class ActorRdfResolveHypermediaLinksTraverse extends ActorRdfResolveHyper
         if (hashPosition >= 0) {
           fileLink.url = fileLink.url.slice(0, hashPosition);
         }
+        // Check if we are currently using the query via the browser in https
+        if (globalThis.window && globalThis.window.location.protocol === "https:") {
+          // Avoid mixed content when using https
+          if (fileLink.url.startsWith("http:")) {
+            fileLink.url = fileLink.url.replace("http:", "https:");
+          }
+        }
         return fileLink;
       }),
     };
